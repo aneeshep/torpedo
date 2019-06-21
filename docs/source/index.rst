@@ -11,9 +11,9 @@ Welcome to Torpedo's documentation!
    :caption: Contents:
    
    readme
-   development/index
-   operations/index
-   commands/index
+   contributing
+   new_plugins
+   remote_plugins
 
 
 
