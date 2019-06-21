@@ -28,12 +28,15 @@ spec:
         max-nodes: 2
         sanity-checks: '[]'
         extra-args: ""
+        job-duration: 100
+        count: 60
 
   namespace: openstack
-  job-duration: 100
-  count: 60
   orchestrator_plugin: "torpedo-traffic-orchestrator"
   chaos_plugin: "torpedo-chaos"
   volume_storage_class: "general"
   volume_storage: "10Gi"
   volume_name: "openstack-torpedo-test"
+  remote-cluster: "True"
+  remote-cluster-endpoint: "<remote cluster endpoint of kubernetes apiserver>"
+  remote-cluster-token: "<kubernetes token to authenticate to the cluster>"

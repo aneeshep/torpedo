@@ -24,10 +24,12 @@ spec:
           - 'openstack-nova-control=enabled'
         service-mapping: nova
         name: nova-os-api
-        nodes: '[]'
+        nodes: ''
         max-nodes: 2
-        sanity-checks: '[]'
+        sanity-checks: ''
         extra-args: ""
+        job-duration: 100
+        count: 60
 
       - service: glance
         component: api
@@ -41,10 +43,12 @@ spec:
           - 'openstack-glance=enabled'
         service-mapping: glance
         name: glance-api
-        nodes: '[]'
+        nodes: ''
         max-nodes: 2
-        sanity-checks: '[]'
+        sanity-checks: ''
         extra-args: ""
+        job-duration: 100
+        count: 60
 
       - service: cinder
         component: api
@@ -58,10 +62,12 @@ spec:
           - 'openstack-cinder-control=enabled'
         service-mapping: cinder
         name: cinder-api
-        nodes: '[]'
+        nodes: ''
         max-nodes: 2
-        sanity-checks: '[]'
+        sanity-checks: ''
         extra-args: ""
+        job-duration: 100
+        count: 60
 
       - service: heat
         component: api
@@ -75,10 +81,12 @@ spec:
           - 'openstack-heat=enabled'
         service-mapping: heat
         name: heat-api
-        nodes: '[]'
+        nodes: ''
         max-nodes: 2
-        sanity-checks: '[]'
+        sanity-checks: ''
         extra-args: ""
+        job-duration: 100
+        count: 60
 
       - service: neutron
         component: api
@@ -92,10 +100,12 @@ spec:
           - 'openstack-neutron=enabled'
         service-mapping: neutron
         name: neutron-api
-        nodes: '[]'
+        nodes: ''
         max-nodes: 1
-        sanity-checks: '[]'
+        sanity-checks: ''
         extra-args: ""
+        job-duration: 100
+        count: 60
 
     - - service: keystone
         component: api
@@ -109,10 +119,12 @@ spec:
           - 'ucp-keystone=enabled'
         service-mapping: keystone
         name: keystone-api
-        nodes: '[]'
+        nodes: ''
         max-nodes: 1
-        sanity-checks: '[]'
+        sanity-checks: ''
         extra-args: ""
+        job-duration: 100
+        count: 60
 
     - - service: rabbitmq
         component: server
@@ -127,10 +139,12 @@ spec:
           - 'openstack-rabbitmq=enabled'
         service-mapping: boot
         name: nova-rabbitmq
-        nodes: '[]'
+        nodes: ''
         max-nodes: 2
-        sanity-checks: '[]'
+        sanity-checks: ''
         extra-args: ""
+        job-duration: 100
+        count: 60
 
       - service: rabbitmq
         component: server
@@ -145,10 +159,12 @@ spec:
           - 'openstack-rabbitmq=enabled'
         service-mapping: registry
         name: glance-rabbitmq
-        nodes: '[]'
+        nodes: ''
         max-nodes: 2
-        sanity-checks: '[]'
+        sanity-checks: ''
         extra-args: ""
+        job-duration: 100
+        count: 60
 
       - service: rabbitmq
         component: server
@@ -163,10 +179,12 @@ spec:
           - 'openstack-rabbitmq=enabled'
         service-mapping: neutron-l3-agent
         name: neutron-rabbitmq
-        nodes: '[]'
+        nodes: ''
         max-nodes: 2
-        sanity-checks: '[]'
+        sanity-checks: ''
         extra-args: ""
+        job-duration: 100
+        count: 60
 
       - service: rabbitmq
         component: server
@@ -181,10 +199,12 @@ spec:
           - 'openstack-rabbitmq=enabled'
         service-mapping: volume
         name: cinder-rabbitmq
-        nodes: '[]'
+        nodes: ''
         max-nodes: 2
-        sanity-checks: '[]'
+        sanity-checks: ''
         extra-args: ""
+        job-duration: 100
+        count: 60
 
       - service: rabbitmq
         component: server
@@ -199,10 +219,12 @@ spec:
           - 'openstack-rabbitmq=enabled'
         service-mapping: heat-engine
         name: heat-rabbitmq
-        nodes: '[]'
+        nodes: ''
         max-nodes: 2
-        sanity-checks: '[]'
+        sanity-checks: ''
         extra-args: ""
+        job-duration: 100
+        count: 60
 
     - - service: nova
         component: compute
@@ -216,10 +238,12 @@ spec:
           - 'openstack-nova-compute=enabled'
         service-mapping: boot
         name: nova-compute
-        nodes: '[]'
+        nodes: ''
         max-nodes: 2
-        sanity-checks: '[]'
+        sanity-checks: ''
         extra-args: ""
+        job-duration: 100
+        count: 60
 
       - service: glance
         component: registry
@@ -233,10 +257,12 @@ spec:
           - 'openstack-glance=enabled'
         service-mapping: registry
         name: glance-registry
-        nodes: '[]'
+        nodes: ''
         max-nodes: 2
-        sanity-checks: '[]'
+        sanity-checks: ''
         extra-args: ""
+        job-duration: 100
+        count: 60
 
       - service: neutron
         component: l3-agent
@@ -250,10 +276,12 @@ spec:
           - 'openstack-neutron=enabled'
         service-mapping: neutron-l3-agent
         name: neutron-l3-agent
-        nodes: '[]'
+        nodes: ''
         max-nodes: 2
-        sanity-checks: '[]'
+        sanity-checks: ''
         extra-args: ""
+        job-duration: 100
+        count: 60
 
       - service: cinder
         component: volume
@@ -267,10 +295,12 @@ spec:
           - 'openstack-cinder-volume=control'
         service-mapping: volume
         name: cinder-volume
-        nodes: '[]'
+        nodes: ''
         max-nodes: 2
-        sanity-checks: '[]'
+        sanity-checks: ''
         extra-args: ""
+        job-duration: 100
+        count: 60
 
       - service: heat
         component: engine
@@ -284,10 +314,12 @@ spec:
           - 'openstack-heat=enabled'
         service-mapping: heat-engine
         name: heat-engine
-        nodes: '[]'
+        nodes: ''
         max-nodes: 2
-        sanity-checks: '[]'
+        sanity-checks: ''
         extra-args: ""
+        job-duration: 100
+        count: 60
 
     - - service: nova
         component: conductor
@@ -301,10 +333,12 @@ spec:
           - 'openstack-nova-control=enabled'
         service-mapping: boot
         name: nova-conductor
-        nodes: '[]'
+        nodes: ''
         max-nodes: 2
-        sanity-checks: '[]'
+        sanity-checks: ''
         extra-args: ""
+        job-duration: 100
+        count: 60
 
     - - service: nova
         component: scheduler
@@ -318,10 +352,12 @@ spec:
           - 'openstack-nova-control=enabled'
         service-mapping: boot
         name: nova-scheduler
-        nodes: '[]'
+        nodes: ''
         max-nodes: 2
-        sanity-checks: '[]'
+        sanity-checks: ''
         extra-args: ""
+        job-duration: 100
+        count: 60
 
       - service: cinder
         component: scheduler
@@ -335,10 +371,12 @@ spec:
           - 'openstack-cinder-control=enabled'
         service-mapping: volume
         name: cinder-volume
-        nodes: '[]'
+        nodes: ''
         max-nodes: 2
-        sanity-checks: '[]'
+        sanity-checks: ''
         extra-args: ""
+        job-duration: 100
+        count: 60
 
     - - service: libvirt
         component: libvirt
@@ -352,10 +390,13 @@ spec:
           - 'openstack-libvirt=kernel'
         service-mapping: boot
         name: libvirt
-        nodes: '[]'
+        nodes: ''
         max-nodes: 1
-        sanity-checks: '[]'
+        sanity-checks: ''
         extra-args: ""
+        job-duration: 100
+        count: 60
+        enable-chaos: "False"
 
     - - service: neutron
         component: dhcp-agent
@@ -369,10 +410,12 @@ spec:
           - 'openstack-dhcp-agent=enabled'
         service-mapping: vm_ping
         name: libvirt
-        nodes: '[]'
+        nodes: ''
         max-nodes: 2
-        sanity-checks: '[]'
+        sanity-checks: ''
         extra-args: ""
+        job-duration: 100
+        count: 60
 
     - - service: ingress
         component: server
@@ -386,10 +429,12 @@ spec:
           - 'openstack-ingress=enabled'
         service-mapping: keystone
         name: ingress
-        nodes: '[]'
+        nodes: ''
         max-nodes: 2
-        sanity-checks: '[]'
+        sanity-checks: ''
         extra-args: ""
+        job-duration: 100
+        count: 60
 
     - - service: mariadb
         component: server
@@ -403,10 +448,12 @@ spec:
           - 'openstack-mariadb=enabled'
         service-mapping: keystone
         name: mariadb-server
-        nodes: '[]'
+        nodes: ''
         max-nodes: 2
-        sanity-checks: '[]'
+        sanity-checks: ''
         extra-args: ""
+        job-duration: 100
+        count: 60
 
     - - service: memcached
         component: server
@@ -420,10 +467,12 @@ spec:
           - 'openstack-memcached=enabled'
         service-mapping: keystone
         name: memcached-server
-        nodes: '[]'
+        nodes: ''
         max-nodes: 2
-        sanity-checks: '[]'
+        sanity-checks: ''
         extra-args: ""
+        job-duration: 100
+        count: 60
 
     - - service: openvswitch
         component: openvswitch-vswitchd-db
@@ -437,10 +486,13 @@ spec:
           - 'openvswitch=enabled=enabled'
         service-mapping: vm_ping
         name: openvswitch-vswitchd-db
-        nodes: '[]'
+        nodes: ''
         max-nodes: 1
-        sanity-checks: '[]'
+        sanity-checks: ''
         extra-args: ""
+        job-duration: 100
+        count: 60
+        enable-chaos: "False"
 
     - - service: openvswitch
         component: openvswitch-vswitchd
@@ -454,16 +506,20 @@ spec:
           - 'openvswitch=enabled=enabled'
         service-mapping: vm_ping
         name: openvswitch-vswitchd
-        nodes: '[]'
+        nodes: ''
         max-nodes: 1
-        sanity-checks: '[]'
+        sanity-checks: ''
         extra-args: ""
+        job-duration: 100
+        count: 60
+        enable-chaos: "False"
 
   namespace: openstack
-  job-duration: 100
-  count: 60
   orchestrator_plugin: "torpedo-traffic-orchestrator"
   chaos_plugin: "torpedo-chaos"
   volume_storage_class: "general"
   volume_storage: "10Gi"
   volume_name: "openstack-torpedo"
+  remote-cluster: "True"
+  remote-cluster-endpoint: "<remote cluster endpoint of kubernetes apiserver>"
+  remote-cluster-token: "<kubernetes token to authenticate to the cluster>"

@@ -24,10 +24,12 @@ spec:
           - 'ucp-promenade=enabled'
         service-mapping: promenade
         name: promenade-api
-        nodes: '[]'
+        nodes: ''
         max-nodes: 1
-        sanity-checks: '[]'
+        sanity-checks: ''
         extra-args: ""
+        job-duration: 100
+        count: 60
 
       - service: shipyard
         component: api
@@ -41,10 +43,12 @@ spec:
           - 'ucp-shipyard=enabled'
         service-mapping: shipyard
         name: shipyard-api
-        nodes: '[]'
+        nodes: ''
         max-nodes: 1
-        sanity-checks: '[]'
+        sanity-checks: ''
         extra-args: ""
+        job-duration: 100
+        count: 60
 
       - service: armada
         component: api
@@ -58,10 +62,12 @@ spec:
           - 'ucp-armada=enabled'
         service-mapping: armada
         name: armada-api
-        nodes: '[]'
+        nodes: ''
         max-nodes: 1
-        sanity-checks: '[]'
+        sanity-checks: ''
         extra-args: ""
+        job-duration: 100
+        count: 60
 
       - service: deckhand
         component: api
@@ -75,10 +81,12 @@ spec:
           - 'ucp-deckhand=enabled'
         service-mapping: deckhand
         name: deckhand-api
-        nodes: '[]'
+        nodes: ''
         max-nodes: 1
-        sanity-checks: '[]'
+        sanity-checks: ''
         extra-args: ""
+        job-duration: 100
+        count: 60
 
       - service: barbican
         component: api
@@ -92,10 +100,12 @@ spec:
           - 'ucp-barbican=enabled'
         service-mapping: barbican
         name: barbican-api
-        nodes: '[]'
+        nodes: ''
         max-nodes: 1
-        sanity-checks: '[]'
+        sanity-checks: ''
         extra-args: ""
+        job-duration: 100
+        count: 60
 
     - - service: keystone
         component: api
@@ -109,17 +119,20 @@ spec:
           - 'ucp-keystone=enabled'
         service-mapping: keystone
         name: keystone-api
-        nodes: '[]'
+        nodes: ''
         max-nodes: 1
-        sanity-checks: '[]'
+        sanity-checks: ''
         extra-args: ""
+        job-duration: 100
+        count: 60
 
 
   namespace: ucp
-  job-duration: 100
-  count: 60
   orchestrator_plugin: "torpedo-traffic-orchestrator"
   chaos_plugin: "torpedo-chaos"
   volume_storage_class: "general"
   volume_storage: "10Gi"
   volume_name: "ucp-torpedo"
+  remote-cluster: "True"
+  remote-cluster-endpoint: "<remote cluster endpoint of kubernetes apiserver>"
+  remote-cluster-token: "<kubernetes token to authenticate to the cluster>"

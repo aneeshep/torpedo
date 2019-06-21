@@ -24,11 +24,12 @@ spec:
           - 'ucp-promenade=enabled'
         service-mapping: promenade
         name: promenade-api
-        nodes: '[]'
+        nodes: ''
         max-nodes: 1
-        extra-args: '[]'
+        extra-args: ''
         job-duration: 60
         count: 60
+        sanity-checks: ""
 
   orchestrator_plugin: "torpedo-traffic-orchestrator"
   chaos_plugin: "torpedo-chaos"

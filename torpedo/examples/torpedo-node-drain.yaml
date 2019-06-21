@@ -14,11 +14,11 @@ spec:
   job-params:
     - - service: heat
         component: engine
-        service-mapping: heat-engine
+        service-mapping: node-drain
         job-duration: 0
         count: 0
         name: torpedo-node-drain
-        extra-args: '[]'
+        extra-args: ''
         enable-chaos: "False"
         nodes:
           - ipmi_ip: <ipmi ip>

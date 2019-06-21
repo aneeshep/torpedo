@@ -1,17 +1,18 @@
-# Copyright 2017 AT&T Intellectual Property. All other rights reserved.
+#!/usr/bin/env python
+
+# Copyright 2019 Google Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
 #
-# http://www.apache.org/licenses/LICENSE-2.0
+#     https://www.apache.org/licenses/LICENSE-2.0
 #
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
 ---
 apiVersion: v1
 data:
@@ -43,6 +44,16 @@ data:
                       - name: kubeconfig
                         mountPath: /root/.kube/config
                         subPath: config
+                  volumes:
+                  - name: tz-config
+                    hostPath:
+                       path: /etc/localtime
+                  - name: torpedo
+                    persistentVolumeClaim:
+                      claimName: {{inputs.parameters.volume-name}}
+                  - name: kubeconfig
+                    configMap:
+                      name: {{inputs.parameters.config-name}}
 
     chaos-parameters.yaml: |
           chaos-parameters:
@@ -68,6 +79,7 @@ data:
           - nodes
           - service-mapping
           - extra-args
+          - pod-labels
     torpedo_argo.j2: |
           {% set orchestrator_dependency = [] %}
           {% set chaos_dependency = [] %}
@@ -111,6 +123,10 @@ data:
                       value: "{{spec['auth']}}"
                     - name: namespace
                       value: '{{spec['namespace']}}'
+                    - name: volume-name
+                      value: {{"pvc-" + spec['volume_name']}}
+                    - name: config-name
+                      value: remote-cluster-kube-config
                     {% for key, value in job.items() %}
                     {% if key != "sanity-checks" %}
                     - name: {{ key }}
@@ -129,6 +145,10 @@ data:
                     parameters:
                     - name: namespace
                       value: '{{ spec['namespace'] }}'
+                    - name: volume-name
+                      value: {{"pvc-" + spec['volume_name']}}
+                    - name: config-name
+                      value: remote-cluster-kube-config
                     {% for key, value in job.items() %}
                     {% if key != "sanity-checks" %}
                     - name: {{ key }}
@@ -147,6 +167,10 @@ data:
                   template: sanity-checks
                   arguments:
                     parameters:
+                    - name: volume-name
+                      value: {{"pvc-" + spec['volume_name']}}
+                    - name: config-name
+                      value: remote-cluster-kube-config
                     - name: name
                       value: {{check['name']}}
                     - name: command
@@ -218,6 +242,8 @@ data:
                 - name: command
                 - name: name
                 - name: image
+                - name: volume-name
+                - name: config-name
 
               resource:
                 action: create
@@ -225,35 +251,20 @@ data:
                 failureCondition: status.failed > 3
                 manifest: |
                   {{spec['torpedo_sanity_checks'] |indent(8)}}
-                        volumes:
-                        - name: torpedo
-                          persistentVolumeClaim:
-                            claimName: {{"pvc-" + spec['volume_name']}}
-                        - name: tz-config
-                          hostPath:
-                             path: /etc/localtime
-                        - name: kubeconfig
-                          configMap:
-                            name: remote-cluster-kube-config
             - name: torpedo-job
               inputs:
                 parameters:
                 {% for param in spec['traffic_parameters'] %}
                 - name: {{ param }}
                 {% endfor %}
+                - name: config-name
+                - name: volume-name
               resource:
                 action: create
                 successCondition: status.succeeded > 0
                 failureCondition: status.failed > 3
                 manifest: |
                   {{spec['torpedo_traffic_job_manifest']|indent(8)}}
-                        volumes:
-                        - name: torpedo
-                          persistentVolumeClaim:
-                            claimName: {{"pvc-" + spec['volume_name']}}
-                        - name: kubeconfig
-                          configMap:
-                            name: remote-cluster-kube-config
 
             - name: chaos-job
               inputs:
@@ -261,6 +272,8 @@ data:
                 {% for param in spec['chaos_parameters'] %}
                 - name: {{ param }}
                 {% endfor %}
+                - name: config-name
+                - name: volume-name
               nodeSelector:
                 resiliency: enabled
               resource:
@@ -269,16 +282,6 @@ data:
                 failureCondition: status.failed > 3
                 manifest: |
                   {{spec['torpedo_chaos_job_manifest']|indent(8) }}
-                        volumes:
-                        - name: torpedo
-                          persistentVolumeClaim:
-                            claimName: {{"pvc-" + spec['volume_name']}}
-                        - name: tz-config
-                          hostPath:
-                             path: /etc/localtime
-                        - name: kubeconfig
-                          configMap:
-                            name: remote-cluster-kube-config
 
             - name: log-analysis
               resource:
@@ -371,6 +374,16 @@ data:
                     - name: kubeconfig
                       mountPath: /root/.kube/config
                       subPath: config
+                volumes:
+                - name: tz-config
+                  hostPath:
+                     path: /etc/localtime
+                - name: torpedo
+                  persistentVolumeClaim:
+                    claimName: {{inputs.parameters.volume-name}}
+                - name: kubeconfig
+                  configMap:
+                    name: {{inputs.parameters.config-name}}
     torpedo-traffic-orchestrator.yaml: |
         manifest: |
           apiVersion: batch/v1
@@ -397,139 +410,27 @@ data:
                   - "{{inputs.parameters.count}}"
                   - "{{inputs.parameters.nodes}}"
                   - "{{inputs.parameters.extra-args}}"
+                  - "{{inputs.parameters.pod-labels}}"
                   name: {{inputs.parameters.name}}
                   image: kiriti29/torpedo-traffic-generator:v1
                   volumeMounts:
+                    - name: tz-config
+                      mountPath: /etc/localtime
                     - name: torpedo
                       mountPath: /var/log
                     - name: kubeconfig
                       mountPath: /root/.kube/config
                       subPath: config
-
-    sync.py: |
-        from http.server import BaseHTTPRequestHandler, HTTPServer
-
-        import copy
-        import jinja2
-        import json
-        import os
-        import re
-        import subprocess
-        import yaml
-
-
-        def is_job_finished(job):
-            if 'status' in job:
-                status_phase = job['status'].get('phase', "NO_STATUS_PHASE_YET")
-                if status_phase == "Succeeded":
-                    return True
-            """
-            desiredNumberScheduled = job['status'].get('desiredNumberScheduled',1)
-            numberReady = job['status'].get('numberReady',0)
-            if desiredNumberScheduled == numberReady and desiredNumberScheduled > 0:
-            return True
-            """
-            return False
-
-
-        def new_workflow(job):
-
-            wf = {}
-            template_filename = 'torpedo_argo.j2'
-            script_path = os.path.dirname(os.path.abspath(__file__))
-            environment = jinja2.Environment(loader=jinja2.FileSystemLoader(
-                                             script_path))
-            wf_text = re.sub(
-                (re.compile('[\s]+None')), '', environment.get_template(
-                 template_filename).render(job))
-            wf = yaml.load(wf_text)
-
-            return wf
-
-
-        class Controller(BaseHTTPRequestHandler):
-
-            def sync(self, job, children):
-
-                desired_status = {}
-                child = '%s-dj' % (job['metadata']['name'])
-                # import pdb; pdb.set_trace()
-
-                self.log_message(" Job: %s", job)
-                self.log_message(" Children: %s", children)
-                orchestrator_template = job['spec']['orchestrator_plugin'] + ".yaml"
-                chaos_template = job['spec']['chaos_plugin'] + ".yaml"
-                orchestrator_path = os.path.join("/hooks", orchestrator_template)
-                chaos_path = os.path.join("/hooks", chaos_template)
-                traffic_path = os.path.join("/hooks", "traffic-parameters.yaml")
-                chaos_param_path = os.path.join("/hooks", "chaos-parameters.yaml")
-                sanity_path = os.path.join("/hooks", "sanity_checks.yaml")
-                if 'remote-cluster' not in job['spec'] or job['spec']['remote-cluster'] is "False":
-                    token = subprocess.check_output(
-                        "cat /var/run/secrets/kubernetes.io/serviceaccount/token",
-                        stderr=subprocess.STDOUT,
-                        shell=True).decode('utf-8').strip("\n")
-                    job['spec']['remote-cluster-endpoint'] = "https://kubernetes-apiserver.kube-system.svc.cluster.local:6443"
-                    job['spec']['remote-cluster-token'] = token
-                with open(orchestrator_path, "r") as f:
-                    wf = yaml.load(f)
-                with open(chaos_path, "r") as f:
-                    wf1 = yaml.load(f)
-                with open(traffic_path, "r") as f:
-                    traffic_parameters = yaml.load(f)
-                with open(chaos_param_path, "r") as f:
-                    chaos_parameters = yaml.load(f)
-                with open(sanity_path, "r") as f:
-                    sanity_checks = yaml.load(f)
-                job['spec']['torpedo_sanity_checks'] = sanity_checks['manifest']
-                job['spec']['torpedo_traffic_job_manifest'] = wf['manifest']
-                job['spec']['torpedo_chaos_job_manifest'] = wf1['manifest']
-                job['spec']['traffic_parameters'] = \
-                    traffic_parameters['traffic-parameters']
-                job['spec']['chaos_parameters'] = chaos_parameters['chaos-parameters']
-        # If the job already finished at some point, freeze the status,
-        # delete children, and take no further action.
-                if is_job_finished(job):
-                    desired_status = copy.deepcopy(job['status'])
-                    desired_status['conditions'] = [{'type': 'Complete',
-                                                    'status': 'True'}]
-                    return {'status': desired_status, 'children': []}
-
-            # Compute status based on what we observed, before building desired state.
-            # Our .status is just a copy of the Argo Workflow.
-                desired_status = copy.deepcopy(
-                    children['Workflow.argoproj.io/v1alpha1'].get(
-                        child, {}).get('status', {}))
-                if is_job_finished(
-                        children['Workflow.argoproj.io/v1alpha1'].get(
-                            child, {})):
-                    desired_status['conditions'] = [{'type': 'Complete',
-                                                    'status': 'True'}]
-                else:
-                    desired_status['conditions'] = [{'type': 'Complete',
-                                                    'status': 'False'}]
-
-                # Always generate desired state for child if we reach this point.
-                # We should not delete children until after we know we've recorded
-                # completion in our status, which was the first check we did above.
-                desired_child = new_workflow(job)
-                self.log_message(" Workflow: %s", desired_child)
-                return {'status': desired_status, 'children': [desired_child]}
-
-            def do_POST(self):
-
-                content_in_bytes = self.rfile.read(
-                    int(self.headers.get('content-length')))
-                observed = json.loads(content_in_bytes.decode('utf-8'))
-                desired = self.sync(observed['parent'], observed['children'])
-
-                self.send_response(200)
-                self.send_header('Content-type', 'application/json')
-                self.end_headers()
-                self.wfile.write(json.dumps(desired).encode('utf-8'))
-
-
-        HTTPServer(('', 30025), Controller).serve_forever()
+                volumes:
+                - name: tz-config
+                  hostPath:
+                     path: /etc/localtime
+                - name: torpedo
+                  persistentVolumeClaim:
+                    claimName: {{inputs.parameters.volume-name}}
+                - name: kubeconfig
+                  configMap:
+                    name: {{inputs.parameters.config-name}}
 
 
 

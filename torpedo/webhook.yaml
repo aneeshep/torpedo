@@ -24,7 +24,11 @@ spec:
         command: ["python3", "/hooks/sync.py"]
         volumeMounts:
         - name: hooks
+          mountPath: /hooks/templates
+        - name: torpedo-metacontroller
           mountPath: /hooks
+          subPath: sync.yaml
+          
       volumes:
       - name: hooks
         configMap:
@@ -34,8 +38,6 @@ spec:
               path: torpedo-chaos.yaml
             - key: sanity_checks.yaml
               path: sanity_checks.yaml
-            - key: sync.py
-              path: sync.py
             - key: torpedo_argo.j2
               path: torpedo_argo.j2
             - key: traffic-parameters.yaml
